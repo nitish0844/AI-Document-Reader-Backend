@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+.venv/
+
+# Environment Variables
+.env
+
+# Uploads
+uploads/
+
+# ChromaDB (if still exists)
+chroma_db/
+
+# VS Code
+.vscode/
+
+# MacOS
+.DS_Store
+
+# Logs
+*.log
+
+# SQLite
+*.sqlite3
+
+# Pytest
+.pytest_cache/
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/
+
+# Build files
+build/
+dist/
+
+# Coverage
+.coverage
+htmlcov/
+
+# IDE
+.idea/
+
+# Temporary files
+*.tmp
+*.swp
