@@ -4,7 +4,9 @@ from sqlalchemy.orm import Session
 
 from app.core.dependencies import get_db
 
-from app.services.embedding_service import model
+from app.services.embedding_service import (
+    generate_embedding
+)
 from app.services.search_service import (
     search_similar_chunks
 )
@@ -34,9 +36,9 @@ async def ask_question(
         }
 
     # Convert question to embedding
-    question_embedding = model.encode(
+    question_embedding = generate_embedding(
         data.question
-    ).tolist()
+    )
 
     # Search PostgreSQL
     documents = search_similar_chunks(

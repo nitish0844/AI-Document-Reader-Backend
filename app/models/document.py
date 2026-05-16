@@ -24,5 +24,4 @@ class DocumentChunk(Base):
     file_name = Column(String)
 
     chunk_text = Column(Text)
-
-    embedding = Column(Vector(384))
+    embedding = Column(Vector(3072))

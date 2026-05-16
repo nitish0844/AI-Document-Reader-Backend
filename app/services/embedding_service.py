@@ -1,13 +1,23 @@
-from sentence_transformers import SentenceTransformer
+from google import genai
 from sqlalchemy.orm import Session
 
 from app.models.document import DocumentChunk
+from app.core.config import GEMINI_API_KEY
 
-# Load embedding model
-model = SentenceTransformer(
-    "all-MiniLM-L6-v2"
+client = genai.Client(
+    api_key=GEMINI_API_KEY
 )
 
+
+def generate_embedding(text: str):
+    response = client.models.embed_content(
+        model="gemini-embedding-001",
+        contents=text
+    )
+    if not response.embeddings:
+        raise ValueError("No embeddings returned")
+
+    return response.embeddings[0].values
 
 def store_embeddings(
     db: Session,
@@ -15,24 +25,23 @@ def store_embeddings(
     filename,
     user_id
 ):
+    try:
+        for chunk in chunks:
+            embedding = generate_embedding(chunk)
+            document = DocumentChunk(
+                user_id=user_id,
+                file_name=filename,
+                chunk_text=chunk,
+                embedding=embedding
+            )
+            db.add(document)
+            db.commit()
+        return True
 
-    for chunk in chunks:
+    except Exception as e:
 
-        # Generate embedding
-        embedding = model.encode(
-            chunk
-        ).tolist()
+        db.rollback()
 
-        # Create DB object
-        document = DocumentChunk(
-            user_id=user_id,
-            file_name=filename,
-            chunk_text=chunk,
-            embedding=embedding
-        )
+        print("DB Error:", e)
 
-        db.add(document)
-
-    db.commit()
-
-    return True
+        raise e
