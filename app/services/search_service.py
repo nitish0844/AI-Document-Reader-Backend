@@ -2,28 +2,39 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 
-def search_similar_chunks(
+def search_resumes(
     db: Session,
-    question_embedding,
-    user_id,
-    limit=3
+    user_id: int,
+    query_embedding,
+    minimum_years_experience: float = 0,
+    limit: int = 10,
+    skills_pattern: str = "%"
 ):
 
-    query = text("""
-        SELECT chunk_text
-        FROM document_chunks
-        WHERE user_id = :user_id
-        ORDER BY embedding <-> :embedding
-        LIMIT :limit
+    sql = text("""
+        SELECT
+    candidate_name,
+    current_role,
+    years_experience,
+    skills,
+    embedding <=> CAST(:embedding AS vector) AS distance
+    FROM resumes
+    WHERE user_id = :user_id
+    AND years_experience >= :minimum_years_experience
+    AND LOWER(skills) LIKE LOWER(:skills_pattern)
+    ORDER BY embedding <=> CAST(:embedding AS vector)
+    LIMIT :limit
     """)
 
     results = db.execute(
-        query,
+        sql,
         {
-            "embedding": str(question_embedding),
+            "embedding": str(query_embedding),
+            "user_id": user_id,
+            "minimum_years_experience": minimum_years_experience,
+            "skills_pattern": skills_pattern,
             "limit": limit,
-            "user_id": user_id
         }
     )
 
-    return [row[0] for row in results]
+    return results.fetchall()
