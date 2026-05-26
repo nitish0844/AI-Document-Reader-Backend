@@ -6,6 +6,8 @@ from sqlalchemy import (
     Float
 )
 
+from sqlalchemy import ForeignKey
+
 from pgvector.sqlalchemy import Vector
 
 from app.core.database import Base
@@ -39,3 +41,8 @@ class Resume(Base):
     )
 
     embedding = Column(Vector(3072))
+
+    resume_filename = Column(
+        String,
+        nullable=True
+    )

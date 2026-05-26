@@ -10,8 +10,9 @@ client = genai.Client(
     api_key=GEMINI_API_KEY
 )
 
-
-def parse_requirement(requirement: str):
+def parse_requirement(
+    requirement: str
+):
 
     prompt = f"""
     Extract hiring requirements.
@@ -27,19 +28,41 @@ def parse_requirement(requirement: str):
     {requirement}
     """
 
-    response = client.models.generate_content(
-        model="gemini-2.5-flash",
-        contents=prompt
-    )
+    try:
 
-    text = response.text or "{}"
+        response = (
+            client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=prompt
+            )
+        )
 
-    text = text.replace(
-        "```json",
-        ""
-    ).replace(
-        "```",
-        ""
-    )
+        text = response.text or "{}"
 
-    return json.loads(text)
+        text = text.replace(
+            "```json",
+            ""
+        ).replace(
+            "```",
+            ""
+        ).strip()
+
+        parsed = json.loads(text)
+
+        return {
+            "skills":
+            parsed.get("skills", []),
+
+            "minimum_years_experience":
+            parsed.get(
+                "minimum_years_experience",
+                0
+            )
+        }
+
+    except Exception:
+
+        return {
+            "skills": [],
+            "minimum_years_experience": 0
+        }
