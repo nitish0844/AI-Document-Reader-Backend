@@ -17,6 +17,10 @@ from app.auth.jwt_handler import (
 
 router = APIRouter()
 
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"]
+)
 
 class RegisterRequest(BaseModel):
     email: str
